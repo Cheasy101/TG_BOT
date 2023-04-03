@@ -4,6 +4,7 @@ import com.vdurmont.emoji.EmojiParser;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.CopyMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -25,7 +26,7 @@ public class Bot extends TelegramLongPollingBot {
 
     protected Message recievedMessage;
 
-//увидел в ютубе реализацию
+//увидел в ютубе реализацию через енамы
 
     private enum options {
         ARGUMENTS_INPUT, WORK, CALLBACKQUERY
@@ -51,118 +52,18 @@ public class Bot extends TelegramLongPollingBot {
     static
 
     int counter = 0;
-//    AfterMath afterMath = new AfterMath();
 
     @Override
     public void onUpdateReceived(Update update) {
-//        synchronized (flag) {
-//            if (update.hasMessage()) { // чтобы метод онАпдейт понимал, с чем мы работаем, сначала нужна проверка не пустое ли сообщение вообще
-//                var msg = update.getMessage();
-//                var user = msg.getFrom();
-//                var id = user.getId();
-//                AfterMath.idForMath = id;
-//
-//                recievedMessage = msg; // TODO: 01.04.2023 проверить
-//
-//
-//                var txt = msg.getText();
-//                if (msg.isCommand()) { // обработчик для команд
-//                    switch (txt) {
-//                        case "/start" -> {
-//                            try {
-//                                startGreetingAnswer(user);
-//                                option = options.WORK;
-//                            } catch (InterruptedException e) {
-//                                throw new RuntimeException(e);
-//                            }
-//
-//                            // TODO: 30.03.2023  добавить кнопки в меню
-//                        }
-//                        case "/scream" -> screaming = true;
-//                        case "/whisper" -> screaming = false;
-//                        case "/operate" -> operateFunction(id, "выберите номер варика");
-//                        default -> sendText(id, "что за команда? я такой не знаю");
-//                    }
-//                }
-//                if (option == options.ARGUMENTS_INPUT) {
-//                    recievedMessage = update.getMessage() == null ? new Message() : update.getMessage();
-//                    //строка присваивает переменной recievedMessage значение полученного сообщения,
-//                    // если оно не равно null, иначе создает новый объект сообщения и присваивает его переменной
-//                    System.out.println("Обновился message: " + recievedMessage.getText());
-//                    flag.notify();
-//                    try {
-//                        flag.wait();
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                } else if (option == options.WORK)
-////                (msg.isUserMessage())
-//                {
-//                    if (txt.equals("Вычислить функцию")) {//                    sendText(id, "Выберите вариант, пожалуйста");
-//                        operateFunction(id, "Выберите номер варианта, пожалуйста");
-//                    }
-//                }
-//            } else if (update.hasCallbackQuery()) {
-//
-//                AfterMath.updateForMath = update;
-//
-//                String callbackData = update.getCallbackQuery().getData();
-//                long messageId = update.getCallbackQuery().getMessage().getMessageId();
-//                long chatId = update.getCallbackQuery().getMessage().getChatId();
-//
-//                option = options.ARGUMENTS_INPUT;
-//                new Thread(new AfterMath(callbackData)).start(); // создаем объект сразу с нужным айди
-//
-//                //                    thread.start();
-//
-////                    synchronized (flag) {  //пропустит только 1 поток
-////                        System.out.println("синхронизировались");
-//                switch (callbackData) {
-//                    case "button1" -> {
-//                        String text = "Вы выбрали первый вариант, теперь введите переменные, пожалуйста";
-//                        executeEditMessageText(text, chatId, messageId);
-//                    }
-//                    case "button2" -> {
-//                        String text = "Вы выбрали второй вариант, теперь введите переменные, пожалуйста";
-//                        executeEditMessageText(text, chatId, messageId);
-//                        counter = 2;
-//                    }
-//                    case "button3" -> {
-//                        String text = "Вы выбрали третий вариант, теперь введите переменные, пожалуйста";
-//                        executeEditMessageText(text, chatId, messageId);
-//                    }
-//                    case "button4" -> {
-//                        String text = "Вы выбрали четвертый вариант, теперь введите переменные, пожалуйста";
-//                        executeEditMessageText(text, chatId, messageId);
-//                    }
-//                    case "button5" -> {
-//                        String text = "Вы выбрали пятый вариант, теперь введите переменные, пожалуйста";
-//                        executeEditMessageText(text, chatId, messageId);
-//                    }
-//                    case "button6" -> {
-//                        String text = "Вы выбрали шестой вариант, теперь введите переменные, пожалуйста";
-//                        executeEditMessageText(text, chatId, messageId);
-//                    }
-//                    case "button7" -> {
-//                        String text = "Вы выбрали седьмой вариант, теперь введите переменные, пожалуйста";
-//                        executeEditMessageText(text, chatId, messageId);
-//                    }
-//                }
-//            }
-//        }
+
         synchronized (flag) {
-            if (update.hasMessage()) {
-                if (update.getMessage().isCommand())
-//            (option == options.WORK)
-                {
+            if(update.hasMessage()) {
+                if (update.getMessage().isCommand()) {
                     var msg = update.getMessage();
                     var user = msg.getFrom();
                     var id = user.getId();
                     AfterMath.idForMath = id;
                     var txt = msg.getText();
-//                if(msg.isCommand()) {
-//                }
-                    // TODO: 02.04.2023 возможно надо исправить немного
                     switch (txt) {
                         case "/start" -> {
                             try {
@@ -171,14 +72,11 @@ public class Bot extends TelegramLongPollingBot {
                                 throw new RuntimeException(e);
                             }
                         }
-                        case "/scream" -> screaming = true;
-                        case "/whisper" -> screaming = false;
-                        case "/operate", "Вычислить функцию" -> operateFunction(id, "выберите номер варика");
+                        case "/operate" -> operateFunction(id, "выберите номер варика");
+                        case "parsestr" -> parseIn1Str(id, "выберите номер варика");
                         default -> sendText(id, "что за команда? я такой не знаю");
                     }
-                }
-                else if (option == options.ARGUMENTS_INPUT) {
-
+                } else if (option == options.ARGUMENTS_INPUT) {
                     recievedMessage = update.getMessage() == null ? new Message() : update.getMessage();
                     //строка присваивает переменной recievedMessage значение полученного сообщения,
                     // если оно не равно null, иначе создает новый объект сообщения и присваивает его переменной
@@ -189,18 +87,15 @@ public class Bot extends TelegramLongPollingBot {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-
+                } else if (update.getMessage().getText().equals("Вычислить функцию")) {
+                    operateFunction(update.getMessage().getFrom().getId(), "выберите номер варика");
+                    AfterMath.idForMath = update.getMessage().getFrom().getId();
+                    option = options.CALLBACKQUERY;
                 }
             }
 
-//            else if (option == options.CALLBACKQUERY) {
+            else if (update.hasCallbackQuery()) {
 
-            if (update.hasCallbackQuery()) {
-
-
-
-
-                option = options.ARGUMENTS_INPUT; //переключаемся на прием аргументов
 
                 AfterMath.updateForMath = update;
 
@@ -208,11 +103,6 @@ public class Bot extends TelegramLongPollingBot {
                 long messageId = update.getCallbackQuery().getMessage().getMessageId();
                 long chatId = update.getCallbackQuery().getMessage().getChatId();
 
-
-                //                    thread.start();
-
-//                    synchronized (flag) {  //пропустит только 1 поток
-//                        System.out.println("синхронизировались");
                 switch (callbackData) {
                     case "button1" -> {
                         String text = "Вы выбрали первый вариант, теперь введите переменные, пожалуйста";
@@ -243,13 +133,17 @@ public class Bot extends TelegramLongPollingBot {
                         executeEditMessageText(text, chatId, messageId);
                     }
                 }
+                option = options.ARGUMENTS_INPUT; //переключаемся на прием аргументов
                 new Thread(new AfterMath(callbackData)).start(); // создаем объект сразу с нужным айди
             }
-//        }
-
         }
+        System.out.println(update);
     }
 
+    private void parseIn1Str(Long id, String выберитеНомерВарика) {
+
+
+    }
 
 //    private double parseMessage(String text, long chatId) throws InterruptedException {
 //        double result;
@@ -465,7 +359,7 @@ public class Bot extends TelegramLongPollingBot {
             try {
                 synchronized (flag) {
                     switch (variant) {
-                        case "button1": {
+                        case "button1" -> {
                             sendText(idForMath, "Введите значения для переменных");
                             sendText(idForMath, "Переменная а");
                             notifyThenWait();
@@ -480,7 +374,8 @@ public class Bot extends TelegramLongPollingBot {
                             double c = parseReceivedMessage();
 
                             sendText(idForMath, "Переменная x");
-                            notifyThenWait(); double x = parseReceivedMessage();
+                            notifyThenWait();
+                            double x = parseReceivedMessage();
 
                             sendText(idForMath, "Переменная n");
                             flag.notify();
@@ -489,9 +384,8 @@ public class Bot extends TelegramLongPollingBot {
 
                             double answer = (Math.pow(5 * a, n * x) / b + c) - Math.sqrt(Math.abs(Math.cos(Math.pow(x, 3))));
                             sendText(idForMath, "ваш ответ -> " + answer);
-                            break;
                         }
-                        case "button2": {
+                        case "button2" -> {
                             sendText(idForMath, "A:");
                             notifyThenWait();
                             double a = parseReceivedMessage();
@@ -510,9 +404,8 @@ public class Bot extends TelegramLongPollingBot {
 
                             double answer = (Math.abs(x - y) / Math.pow(1 + 2 * x, a) - Math.pow(Math.E, Math.sqrt(1 + w)));
                             sendText(idForMath, "Выражение = " + answer);
-                            break;
                         }
-                        case "button3": {
+                        case "button3" -> {
                             sendText(idForMath, "A0:");
                             notifyThenWait();
                             double a0 = parseReceivedMessage();
@@ -531,9 +424,8 @@ public class Bot extends TelegramLongPollingBot {
 
                             double answer = (Math.sqrt(a0 + a1 * x + a2 * Math.pow(Math.abs(Math.sin(x)), 1 / 3f)));
                             sendText(idForMath, "ваш ответ -> " + answer);
-                            break;
                         }
-                        case "button4": {
+                        case "button4" -> {
                             sendText(idForMath, "A:");
                             notifyThenWait();
                             double a = parseReceivedMessage();
@@ -544,9 +436,8 @@ public class Bot extends TelegramLongPollingBot {
 
                             double answer = (Math.log(Math.abs(Math.pow(a, 7))) + Math.atan(x * x) + Math.PI / Math.sqrt(Math.abs(a + x)));
                             sendText(idForMath, "ваш ответ -> " + answer);
-                            break;
                         }
-                        case "button5": {
+                        case "button5" -> {
                             sendText(idForMath, "A:");
                             double a = parseReceivedMessage();
 
@@ -569,25 +460,22 @@ public class Bot extends TelegramLongPollingBot {
                             notifyThenWait();
                             double answer = (Math.pow(Math.pow(a + b, 2) / (c + d) + Math.pow(Math.E, Math.sqrt(x + 1)), 1 / 5f));
                             sendText(idForMath, "ваш ответ -> " + answer);
-                            break;
                         }
-                        case "button6": {
+                        case "button6" -> {
                             sendText(idForMath, "X:");
                             notifyThenWait();
                             double x = parseReceivedMessage();
 
                             double answer = (Math.pow(Math.E, (2 * Math.sin(4 * x) + Math.pow(Math.cos(x * x), 2)) / (3 * x)));
                             sendText(idForMath, "ваш ответ -> " + answer);
-                            break;
                         }
-                        case "button7": {
+                        case "button7" -> {
                             sendText(idForMath, "X:");
                             notifyThenWait();
                             double x = parseReceivedMessage();
 
                             double answer = (0.25 * ((1 + x * x) / (1 - x) + 0.5 * Math.tan(x)));
                             sendText(idForMath, "ваш ответ -> " + answer);
-                            break;
                         }
                     }
                     option = options.WORK;
@@ -617,6 +505,7 @@ public class Bot extends TelegramLongPollingBot {
             }
             return answer;
         }
+
     }
 
     public void voidMessage(String text) {
