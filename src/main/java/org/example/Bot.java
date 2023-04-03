@@ -6,6 +6,7 @@ import org.telegram.telegrambots.meta.api.methods.CopyMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -16,20 +17,24 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Bot extends TelegramLongPollingBot {
     private boolean screaming = false;
     final static Boolean flag = true;
     static ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+    private static int variable;
+
 
     protected Message recievedMessage;
 
 //увидел в ютубе реализацию через енамы
 
     private enum options {
-        ARGUMENTS_INPUT, WORK, CALLBACKQUERY
+        ARGUMENTS_INPUT, WORK, IN1STR, input1StrArgs, CALLBACKQUERY
     }
 
     private options option = options.WORK;
@@ -57,7 +62,7 @@ public class Bot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
 
         synchronized (flag) {
-            if(update.hasMessage()) {
+            if (update.hasMessage()) {
                 if (update.getMessage().isCommand()) {
                     var msg = update.getMessage();
                     var user = msg.getFrom();
@@ -72,8 +77,16 @@ public class Bot extends TelegramLongPollingBot {
                                 throw new RuntimeException(e);
                             }
                         }
-                        case "/operate" -> operateFunction(id, "выберите номер варика");
-                        case "parsestr" -> parseIn1Str(id, "выберите номер варика");
+                        case "/operate" -> {
+                            operateFunction(id, "выберите номер варика");
+                            sendPhoto(id);
+                        }
+                        case "/parsestr" -> {
+                            sendText(id, "Выбери номер варианта. Всего их 7. От 1 до 7" +
+                                    "\n Вон, даже картиночка есть");
+                            sendPhoto(id);
+                            option = options.IN1STR;
+                        }
                         default -> sendText(id, "что за команда? я такой не знаю");
                     }
                 } else if (option == options.ARGUMENTS_INPUT) {
@@ -89,12 +102,183 @@ public class Bot extends TelegramLongPollingBot {
                     }
                 } else if (update.getMessage().getText().equals("Вычислить функцию")) {
                     operateFunction(update.getMessage().getFrom().getId(), "выберите номер варика");
+                    sendPhoto(update.getMessage().getFrom().getId());
                     AfterMath.idForMath = update.getMessage().getFrom().getId();
                     option = options.CALLBACKQUERY;
-                }
-            }
+                } else if (option == options.IN1STR) {
+                    var user = update.getMessage().getFrom();
+                    Long id = user.getId();
+                    String varik = update.getMessage().getText();
+                    sendText(id, "Че за анаконда");
 
-            else if (update.hasCallbackQuery()) {
+
+                    switch (varik) {
+                        case "1" -> {
+                            sendText(id, """
+                                    Вы выбрали первый вариант 1: Вводите аргументы\s
+                                    Тут надо 5 констант в 1 строку через пробел\\n" +
+                                                                        " в формате => a b c x n\s""");
+                            variable = 1;
+                        }
+                        case "2" -> {
+                            sendText(id, """
+                                    Вы выбрали первый вариант 2: Вводите аргументы\s
+                                    надо 4 константы в формате\s
+                                     => A W(омега) X Y""");
+                            variable = 2;
+                        }
+                        case "3" -> {
+                            sendText(id, """
+                                    Вы выбрали первый вариант 3: Вводите аргументы\s
+                                    надо 4 константы в формате\s
+                                     => A0 A1 A2 X""");
+                            variable = 3;
+                        }
+                        case "4" -> {
+                            sendText(id, """
+                                    Вы выбрали первый вариант 4: Вводите аргументы\s
+                                    надо 4 константы в формате\s
+                                     => A X""");
+                            variable = 4;
+                        }
+                        case "5" -> {
+                            sendText(id, """
+                                    Вы выбрали первый вариант 5: Вводите аргументы\s
+                                    надо 4 константы в формате\s
+                                     => A B C D X""");
+                            variable = 5;
+                        }
+                        case "6" -> {
+                            sendText(id, """
+                                    Вы выбрали первый вариант 6: Вводите аргументы\s
+                                    надо 4 константы в формате\s
+                                     => X""");
+                            variable = 6;
+                        }
+                        case "7" -> {
+                            sendText(id, """
+                                    Вы выбрали первый вариант 6: Вводите аргументы\s
+                                    надо 4 константы в формате\s
+                                     => X""");
+                            variable = 7;
+                        }
+                    }
+                    option = options.input1StrArgs; // TODO: 03.04.2023 мысль - стат константа варианта ! йоу
+                } else if (option == options.input1StrArgs) {
+                    String[] variables;
+                    Long id = update.getMessage().getFrom().getId();
+
+                    switch (variable) {
+                        case 1 -> {
+                            try {
+                                variables = update.getMessage().getText().split(" ");
+                                if (variables.length != 5) {
+                                    throw new Exception("Ошибочка вышла! ");
+                                }
+                                int a = Integer.parseInt(variables[0]);
+                                int b = Integer.parseInt(variables[1]);
+                                int c = Integer.parseInt(variables[2]);
+                                int x = Integer.parseInt(variables[3]);
+                                int n = Integer.parseInt(variables[4]);
+                                double answer = (Math.pow(5 * a, n * x) / b + c) - Math.sqrt(Math.abs(Math.cos(Math.pow(x, 3))));
+                                sendText(id, "ваш ответ -> " + answer);
+                            } catch (Exception e) {
+                                sendText(id, "неправильно ты данные вводишь, еще раз попробуй");
+                            }
+                        }
+                        case 2 -> {
+                            try {
+                                variables = update.getMessage().getText().split(" ");
+                                if (variables.length != 4) {
+                                    throw new Exception("Ошибочка вышла! ");
+                                }
+                                int a = Integer.parseInt(variables[0]);
+                                int w = Integer.parseInt(variables[1]);
+                                int x = Integer.parseInt(variables[2]);
+                                int y = Integer.parseInt(variables[3]);
+                                double answer = (Math.abs(x - y) / Math.pow(1 + 2 * x, a) - Math.pow(Math.E, Math.sqrt(1 + w)));
+                                sendText(id, "ваш ответ -> " + answer);
+                            } catch (Exception e) {
+                                sendText(id, "неправильно ты данные вводишь, еще раз попробуй");
+                            }
+                        }
+                        case 3 -> {
+                            try {
+                                variables = update.getMessage().getText().split(" ");
+                                if (variables.length != 4) {
+                                    throw new Exception("Ошибочка вышла! ");
+                                }
+                                int a0 = Integer.parseInt(variables[0]);
+                                int a1 = Integer.parseInt(variables[1]);
+                                int a2 = Integer.parseInt(variables[2]);
+                                int x = Integer.parseInt(variables[3]);
+                                double answer = (Math.sqrt(a0 + a1 * x + a2 * Math.pow(Math.abs(Math.sin(x)), 1 / 3f)));
+                                sendText(id, "ваш ответ -> " + answer);
+                            } catch (Exception e) {
+                                sendText(id, "неправильно ты данные вводишь, еще раз попробуй");
+                            }
+                        }
+                        case 4 -> {
+                            try {
+                                variables = update.getMessage().getText().split(" ");
+                                if (variables.length != 2) {
+                                    throw new Exception("Ошибочка вышла! ");
+                                }
+                                int a = Integer.parseInt(variables[0]);
+                                int x = Integer.parseInt(variables[1]);
+                                double answer = (Math.log(Math.abs(Math.pow(a, 7))) + Math.atan(x * x) + Math.PI / Math.sqrt(Math.abs(a + x)));
+                                sendText(id, "ваш ответ -> " + answer);
+                            } catch (Exception e) {
+                                sendText(id, "неправильно ты данные вводишь, еще раз попробуй");
+                            }
+                        }
+                        case 5 -> {
+                            try {
+                                variables = update.getMessage().getText().split(" ");
+                                if (variables.length != 5) {
+                                    throw new Exception("Ошибочка вышла! ");
+                                }
+                                int a = Integer.parseInt(variables[0]);
+                                int b = Integer.parseInt(variables[1]);
+                                int c = Integer.parseInt(variables[2]);
+                                int d = Integer.parseInt(variables[3]);
+                                int x = Integer.parseInt(variables[4]);
+                                double answer = (Math.pow(Math.pow(a + b, 2) / (c + d) + Math.pow(Math.E, Math.sqrt(x + 1)), 1 / 5f));
+                                sendText(id, "ваш ответ -> " + answer);
+                            } catch (Exception e) {
+                                sendText(id, "неправильно ты данные вводишь, еще раз попробуй");
+                            }
+                        }
+                        case 6 -> {
+                            try {
+                                variables = update.getMessage().getText().split(" ");
+                                if (variables.length != 1) {
+                                    throw new Exception("Ошибочка вышла! ");
+                                }
+                                int x = Integer.parseInt(variables[0]);
+                                double answer = (Math.pow(Math.E, (2 * Math.sin(4 * x) + Math.pow(Math.cos(x * x), 2)) / (3 * x)));
+                                sendText(id, "ваш ответ -> " + answer);
+                            } catch (Exception e) {
+                                sendText(id, "неправильно ты данные вводишь, еще раз попробуй");
+                            }
+                        }
+                        case 7 -> {
+                            try {
+                                variables = update.getMessage().getText().split(" ");
+                                if (variables.length != 1) {
+                                    throw new Exception("Ошибочка вышла! ");
+                                }
+                                int x = Integer.parseInt(variables[0]);
+                                double answer = (0.25 * ((1 + x * x) / (1 - x) + 0.5 * Math.tan(x)));
+                                sendText(id, "ваш ответ -> " + answer);
+                            } catch (Exception e) {
+                                sendText(id, "неправильно ты данные вводишь, еще раз попробуй");
+                            }
+                        }
+                    }
+                }
+
+            } else if (update.hasCallbackQuery()) {
 
 
                 AfterMath.updateForMath = update;
@@ -137,29 +321,27 @@ public class Bot extends TelegramLongPollingBot {
                 new Thread(new AfterMath(callbackData)).start(); // создаем объект сразу с нужным айди
             }
         }
-        System.out.println(update);
     }
 
-    private void parseIn1Str(Long id, String выберитеНомерВарика) {
 
+    private void sendPhoto(long id) {
+
+
+        // создаем объект InputFile из файла
+        File photo = new File("C:\\Users\\Bulat\\IdeaProjects\\tgBot\\Варианты.png");
+        InputFile inputFile = new InputFile(photo);
+        // создаем объект SendPhoto и добавляем в него InputFile
+        SendPhoto sendPhoto = new SendPhoto();
+        sendPhoto.setChatId(String.valueOf(id));
+        sendPhoto.setPhoto(inputFile);
+        // отправляем фото
+        try {
+            execute(sendPhoto);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
 
     }
-
-//    private double parseMessage(String text, long chatId) throws InterruptedException {
-//        double result;
-//        synchronized (flag) {
-//            while (true) {
-//                try {
-//                    result = Double.parseDouble(text);
-//                    break;
-//                } catch (NumberFormatException ignored) {
-//                    sendText(chatId, "попробуйте ввести значения еще раз");
-//                    wait();
-//                }
-//            }
-//            return result;
-//        }
-//    }
 
     private void executeEditMessageText(String text, long chatId, long messageId) {
         EditMessageText message = new EditMessageText();
@@ -228,7 +410,6 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-
     private void startGreetingAnswer(User user) throws InterruptedException {
         if (user.getFirstName().equals("Булат") & user.getLastName().equals("Алексеевич")) {
             String emojiParser = EmojiParser.parseToUnicode("Приветствую вас, босс :kissing_closed_eyes::kissing_closed_eyes:\n вы прекрасно выглядите сегодня");
@@ -242,7 +423,6 @@ public class Bot extends TelegramLongPollingBot {
             sendText(user.getId(), "Какую функцию вы бы хотели использовать? ");
         }
     }
-
 
     public void sendText(Long who, String what) {
         SendMessage sendMessage = SendMessage.builder()
@@ -304,46 +484,6 @@ public class Bot extends TelegramLongPollingBot {
 
         static Update updateForMath;
         static long idForMath;
-        // TODO: 01.04.2023 возможно будет ошибка
-
-
-//    public double getAnswer(int variant) {
-//        // надо как то получать значения с бота
-//        Bot bot = new Bot();
-//
-//        switch (variant) {
-//            case 1:
-//                bot.sendText(idForMath, "Введите значения для переменных");
-//                bot.sendText(idForMath, "Переменная а");
-//
-//                System.out.println(updateForMath.getMessage().getText());
-//
-////                onUpdatesReceived(Collections.singletonList(updateForMath));
-//
-//
-//                int a = 1;
-//                int b = 1; // TODO: 31.03.2023 реализовать
-//                int c = 1;
-//                int x = 1;
-//                int n = 1;
-//
-//                double answer = (Math.pow(5 * a, n * x) / b + c) - Math.sqrt(Math.abs(Math.cos(Math.pow(x, 3))));
-//                break;
-//            case 2:
-//
-//        }
-//        return answer;
-//    }
-
-//        @Override
-//        public String getBotUsername() {
-//            return "topG1_bot";
-//        }
-//
-//        @Override
-//        public String getBotToken() {
-//            return "5988048325:AAFpBKECVwB0Q1gLmzDBr1HVar-mdcMiNGY";
-//        }
 
         public void notifyThenWait() {
             try {
@@ -439,25 +579,26 @@ public class Bot extends TelegramLongPollingBot {
                         }
                         case "button5" -> {
                             sendText(idForMath, "A:");
+                            notifyThenWait();
                             double a = parseReceivedMessage();
 
-                            notifyThenWait();
                             sendText(idForMath, "B:");
+                            notifyThenWait();
                             double b = parseReceivedMessage();
 
-                            notifyThenWait();
                             sendText(idForMath, "C:");
+                            notifyThenWait();
                             double c = parseReceivedMessage();
 
-                            notifyThenWait();
                             sendText(idForMath, "D:");
+                            notifyThenWait();
                             double d = parseReceivedMessage();
 
-                            notifyThenWait();
                             sendText(idForMath, "X:");
+                            notifyThenWait();
                             double x = parseReceivedMessage();
 
-                            notifyThenWait();
+
                             double answer = (Math.pow(Math.pow(a + b, 2) / (c + d) + Math.pow(Math.E, Math.sqrt(x + 1)), 1 / 5f));
                             sendText(idForMath, "ваш ответ -> " + answer);
                         }
@@ -480,7 +621,6 @@ public class Bot extends TelegramLongPollingBot {
                     }
                     option = options.WORK;
                     flag.notify();
-//                    voidMessage("");
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -506,14 +646,6 @@ public class Bot extends TelegramLongPollingBot {
             return answer;
         }
 
-    }
-
-    public void voidMessage(String text) {
-        Message message = new Message();
-        message.setText(text);
-        Update update = new Update();
-        update.setMessage(message);
-        onUpdateReceived(update);
     }
 }
 
