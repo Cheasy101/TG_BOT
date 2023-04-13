@@ -48,7 +48,7 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        return "5988048325:AAFpBKECVwB0Q1gLmzDBr1HVar-mdcMiNGY";
+        return "";
     }
 
     private InlineKeyboardMarkup keyboardM1;
@@ -93,7 +93,7 @@ public class Bot extends TelegramLongPollingBot {
                     recievedMessage = update.getMessage() == null ? new Message() : update.getMessage();
                     //строка присваивает переменной recievedMessage значение полученного сообщения,
                     // если оно не равно null, иначе создает новый объект сообщения и присваивает его переменной
-                    System.out.println("Обновился message: " + recievedMessage.getText());
+                    System.out.println("Update -> " + recievedMessage.getText());
                     flag.notify();
                     try {
                         flag.wait();
@@ -109,8 +109,6 @@ public class Bot extends TelegramLongPollingBot {
                     var user = update.getMessage().getFrom();
                     Long id = user.getId();
                     String varik = update.getMessage().getText();
-                    sendText(id, "Че за анаконда");
-
 
                     switch (varik) {
                         case "1" -> {
@@ -220,6 +218,7 @@ public class Bot extends TelegramLongPollingBot {
                         }
                         case 4 -> {
                             try {
+                                System.out.println("Сюда попали");
                                 variables = update.getMessage().getText().split(" ");
                                 if (variables.length != 2) {
                                     throw new Exception("Ошибочка вышла! ");
@@ -233,20 +232,26 @@ public class Bot extends TelegramLongPollingBot {
                             }
                         }
                         case 5 -> {
-                            try {
-                                variables = update.getMessage().getText().split(" ");
-                                if (variables.length != 5) {
-                                    throw new Exception("Ошибочка вышла! ");
+                            boolean metka = false;
+                            while (!metka) {
+                                try {
+                                    variables = update.getMessage().getText().split(" ");
+                                    if (variables.length != 5) {
+                                        throw new Exception("Ошибочка вышла! ");
+                                    }
+                                    int a = Integer.parseInt(variables[0]);
+                                    int b = Integer.parseInt(variables[1]);
+                                    int c = Integer.parseInt(variables[2]);
+                                    int d = Integer.parseInt(variables[3]);
+                                    int x = Integer.parseInt(variables[4]);
+                                    double answer = (Math.pow(Math.pow(a + b, 2) / (c + d) + Math.pow(Math.E, Math.sqrt(x + 1)), 1 / 5f));
+                                    sendText(id, "ваш ответ -> " + answer);
+                                    metka = true;
+                                } catch (Exception e) {
+                                    sendText(id, "неправильно ты данные вводишь, еще раз попробуй");
+                                    break;
+//                                    continue;
                                 }
-                                int a = Integer.parseInt(variables[0]);
-                                int b = Integer.parseInt(variables[1]);
-                                int c = Integer.parseInt(variables[2]);
-                                int d = Integer.parseInt(variables[3]);
-                                int x = Integer.parseInt(variables[4]);
-                                double answer = (Math.pow(Math.pow(a + b, 2) / (c + d) + Math.pow(Math.E, Math.sqrt(x + 1)), 1 / 5f));
-                                sendText(id, "ваш ответ -> " + answer);
-                            } catch (Exception e) {
-                                sendText(id, "неправильно ты данные вводишь, еще раз попробуй");
                             }
                         }
                         case 6 -> {
@@ -263,19 +268,24 @@ public class Bot extends TelegramLongPollingBot {
                             }
                         }
                         case 7 -> {
-                            try {
-                                variables = update.getMessage().getText().split(" ");
-                                if (variables.length != 1) {
-                                    throw new Exception("Ошибочка вышла! ");
+                            boolean metka = true;
+                            while (metka) {
+                                try {
+                                    variables = update.getMessage().getText().split(" ");
+                                    if (variables.length != 1) {
+                                        throw new Exception("Ошибочка вышла! ");
+                                    }
+                                    int x = Integer.parseInt(variables[0]);
+                                    double answer = (0.25 * ((1 + x * x) / (1 - x) + 0.5 * Math.tan(x)));
+                                    sendText(id, "ваш ответ -> " + answer);
+                                    metka = false;
+                                } catch (Exception e) {
+                                    sendText(id, "неправильно ты данные вводишь, еще раз попробуй");
                                 }
-                                int x = Integer.parseInt(variables[0]);
-                                double answer = (0.25 * ((1 + x * x) / (1 - x) + 0.5 * Math.tan(x)));
-                                sendText(id, "ваш ответ -> " + answer);
-                            } catch (Exception e) {
-                                sendText(id, "неправильно ты данные вводишь, еще раз попробуй");
                             }
                         }
                     }
+                    option = options.WORK;
                 }
 
             } else if (update.hasCallbackQuery()) {
@@ -627,7 +637,6 @@ public class Bot extends TelegramLongPollingBot {
             }
         }
 
-
         public double parseReceivedMessage() throws InterruptedException {
             double answer;
             synchronized (flag) {
@@ -645,7 +654,14 @@ public class Bot extends TelegramLongPollingBot {
             }
             return answer;
         }
-
     }
+
+
+
+/*
+Земля: техническая характеристика
+*/
+
+
 }
 
